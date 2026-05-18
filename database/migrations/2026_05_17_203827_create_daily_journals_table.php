@@ -1,0 +1,24 @@
+<?php
+use Illuminate\Database\Migrations\Migration;
+use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Support\Facades\Schema;
+
+return new class extends Migration {
+    public function up(): void {
+        Schema::create('daily_journals', function (Blueprint $table) {
+            $table->id();
+            $table->foreignId('user_id')->constrained()->cascadeOnDelete();
+            $table->date('entry_date');
+            $table->integer('energy_level')->nullable(); // 1-10
+            $table->integer('sleep_quality')->nullable(); // 1-10
+            $table->integer('mood')->nullable(); // 1-10
+            $table->text('gratitude')->nullable();
+            $table->text('intention')->nullable();
+            $table->text('notes')->nullable();
+            $table->json('stoic_reflection')->nullable();
+            $table->timestamps();
+            $table->unique(['user_id', 'entry_date']);
+        });
+    }
+    public function down(): void { Schema::dropIfExists('daily_journals'); }
+};

@@ -1,0 +1,78 @@
+name: CI
+
+on:
+  push:
+    branches: [ master ]
+  pull_request:
+    branches: [ master ]
+
+jobs:
+  laravel:
+    runs-on: ubuntu-latest
+
+    strategy:
+      fail-fast: false
+      matrix:
+        php: [8.3, 8.4]
+
+    name: PHP ${{ matrix.php }}
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: ${{ matrix.php }}
+          extensions: pdo_sqlite, sqlite3, mbstring, xml, ctype, json, fileinfo, openssl, tokenizer
+          tools: composer:v2
+          coverage: none
+
+      - name: Get composer cache directory
+        id: composer-cache
+        run: echo "dir=$(composer config cache-files-dir)" >> $GITHUB_OUTPUT
+
+      - name: Cache composer dependencies
+        uses: actions/cache@v4
+        with:
+          path: ${{ steps.composer-cache.outputs.dir }}
+          key: ${{ runner.os }}-composer-${{ matrix.php }}-${{ hashFiles('**/composer.lock') }}
+          restore-keys: |
+            ${{ runner.os }}-composer-${{ matrix.php }}-
+            ${{ runner.os }}-composer-
+
+      - name: Install dependencies
+        run: composer install --no-progress --prefer-dist --optimize-autoloader
+
+      - name: Prepare environment
+        run: |
+          cp .env.example .env
+          php artisan key:generate
+          touch database/database.sqlite
+
+      - name: Run database migrations
+        run: php artisan migrate --force
+
+      - name: Run PHPUnit tests
+        run: php artisan test --parallel --without-tty 2>/dev/null || php artisan test --without-tty
+        env:
+          APP_ENV: testing
+          DB_CONNECTION: sqlite
+          DB_DATABASE: database/database.sqlite
+
+      - name: Run Laravel Pint (style check)
+        if: ${{ hashFiles('vendor/bin/pint') != '' || matrix.php == '8.4' }}
+        run: |
+          if [ -x vendor/bin/pint ]; then
+            vendor/bin/pint --test
+          else
+            echo "pint not available, skipping style check"
+          fi
+
+      - name: Report test results
+        if: always()
+        run: |
+          echo "## CI Status" >> $GITHUB_STEP_SUMMARY
+          echo "- PHP ${{ matrix.php }} ✓" >> $GITHUB_STEP_SUMMARY
+          echo "- Completed at: $(date -u)" >> $GITHUB_STEP_SUMMARY

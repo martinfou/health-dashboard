@@ -32,4 +32,10 @@ require __DIR__.'/auth.php';
 
 Route::middleware(['auth', 'verified'])->group(function () {
     Route::get('/trading', [App\Http\Controllers\TradingController::class, 'index'])->name('trading');
+
+    // Grocery & Price Intelligence
+    Route::get('/grocery', [App\Http\Controllers\GroceryController::class, 'index'])->name('grocery');
+    Route::get('/grocery/price-intel', [App\Http\Controllers\PriceIntelController::class, 'index'])->name('grocery.price-intel');
+    Route::get('/grocery/history', [App\Http\Controllers\PriceIntelController::class, 'history'])->name('grocery.history');
+    Route::get('/grocery/meal-plan', [App\Http\Controllers\PriceIntelController::class, 'mealPlan'])->name('grocery.meal-plan');
 });

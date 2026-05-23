@@ -51,27 +51,45 @@ class MealPlanUsage extends Model
 
     /**
      * Record multiple recipes from a meal plan.
+     *
+     * @param array $schedule Format: ['Lundi' => [['name' => ..., ...], ...], ...]
      */
     public static function recordUsage(array $schedule, string $weekLabel): void
     {
         $now = Carbon::now()->startOfWeek();
+        $dayNames = ['Lundi','Mardi','Mercredi','Jeudi','Vendredi','Samedi','Dimanche'];
 
-        foreach ($schedule as $day => $meal) {
-            static::updateOrCreate(
-                [
-                    'recipe_name' => $meal['name'],
-                    'used_on' => $now->copy()->addDays(array_search($day, ['Lundi','Mardi','Mercredi','Jeudi','Vendredi','Samedi','Dimanche']) ?: 0),
-                ],
-                [
-                    'week_label' => $weekLabel,
-                    'context' => [
-                        'day' => $day,
-                        'estimate_cost' => $meal['estimated_cost'] ?? 0,
-                        'match_pct' => $meal['match_pct'] ?? 0,
-                        'deal_count' => $meal['matched_deals']->count() ?? 0,
+        foreach ($schedule as $day => $meals) {
+            // Support both old format (single meal) and new format (array of meals)
+            if (is_array($meals) && isset($meals['name'])) {
+                $meals = [$meals];
+            }
+
+            if (!is_array($meals)) continue;
+
+            $dayIndex = array_search($day, $dayNames);
+            if ($dayIndex === false) continue;
+
+            foreach ($meals as $meal) {
+                if (!isset($meal['name'])) continue;
+
+                static::updateOrCreate(
+                    [
+                        'recipe_name' => $meal['name'],
+                        'used_on' => $now->copy()->addDays($dayIndex),
                     ],
-                ]
-            );
+                    [
+                        'week_label' => $weekLabel,
+                        'context' => [
+                            'day' => $day,
+                            'assigned_slot' => $meal['assigned_slot'] ?? null,
+                            'estimate_cost' => $meal['estimated_cost'] ?? 0,
+                            'match_pct' => $meal['match_pct'] ?? 0,
+                            'deal_count' => isset($meal['matched_deals']) ? $meal['matched_deals']->count() : 0,
+                        ],
+                    ]
+                );
+            }
         }
     }
 }

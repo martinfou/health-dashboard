@@ -39,6 +39,10 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::get('/grocery/history', [App\Http\Controllers\PriceIntelController::class, 'history'])->name('grocery.history');
     Route::get('/grocery/meal-plan', [App\Http\Controllers\MealPlanController::class, 'index'])->name('grocery.meal-plan');
     Route::get('/grocery/meal-plan/history', [App\Http\Controllers\MealPlanController::class, 'history'])->name('grocery.meal-plan.history');
+    Route::get('/grocery/meal-plan/tracking', [App\Http\Controllers\MealPlanController::class, 'tracking'])->name('grocery.meal-plan.tracking');
+    Route::post('/grocery/meal-plan/eat/{trackingId}', [App\Http\Controllers\MealPlanController::class, 'eatMeal'])->name('grocery.meal-plan.eat');
+    Route::post('/grocery/meal-plan/uneat/{trackingId}', [App\Http\Controllers\MealPlanController::class, 'uneatMeal'])->name('grocery.meal-plan.uneat');
+    Route::post('/grocery/meal-plan/regenerate', [App\Http\Controllers\MealPlanController::class, 'regenerate'])->name('grocery.meal-plan.regenerate');
 
     // Feature 1: Stock Up Alert
     Route::get('/grocery/stock-up', [App\Http\Controllers\StockUpAlertController::class, 'index'])->name('grocery.stock-up');

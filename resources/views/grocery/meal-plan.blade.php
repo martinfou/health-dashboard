@@ -8,7 +8,6 @@
     <div class="py-6">
         <div class="max-w-7xl mx-auto sm:px-6 lg:px-8">
 
-            {{-- Weekly schedule --}}
             {{-- Recently used recipes notice --}}
             @if(!empty($recentlyUsed) && count($recentlyUsed) > 0)
             <div class="mb-4 bg-yellow-50 dark:bg-yellow-900/20 border border-yellow-200 dark:border-yellow-700 rounded-lg p-3 text-sm">
@@ -29,6 +28,38 @@
             </div>
             @endif
 
+            {{-- Today's quick calorie summary --}}
+            @if(isset($todaySummary) && $todaySummary['total_count'] > 0)
+            <div class="mb-6 bg-white dark:bg-gray-800 rounded-lg shadow-sm p-4">
+                <div class="flex items-center justify-between mb-2">
+                    <h4 class="font-semibold text-gray-800 dark:text-gray-200 text-sm">
+                        🔥 Aujourd'hui — Suivi calorique
+                    </h4>
+                    <a href="{{ route('grocery.meal-plan.tracking') }}" class="text-blue-500 hover:underline text-xs">
+                        Voir le détail →
+                    </a>
+                </div>
+                <div class="flex items-center gap-4">
+                    <div class="flex-1">
+                        <div class="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-3 overflow-hidden">
+                            <div class="h-3 rounded-full transition-all duration-500
+                                {{ $todaySummary['calorie_progress'] > 100 ? 'bg-red-500' : ($todaySummary['calorie_progress'] > 80 ? 'bg-yellow-400' : 'bg-green-500') }}"
+                                 style="width: {{ min(100, $todaySummary['calorie_progress']) }}%">
+                            </div>
+                        </div>
+                    </div>
+                    <span class="text-sm font-bold whitespace-nowrap
+                        {{ $todaySummary['total_calories'] > 1900 ? 'text-red-500' : 'text-green-600' }}">
+                        {{ $todaySummary['total_calories'] }} / 1,900 kcal
+                    </span>
+                    <span class="text-xs text-gray-400">
+                        {{ $todaySummary['eaten_count'] }}/{{ $todaySummary['total_count'] }} repas
+                    </span>
+                </div>
+            </div>
+            @endif
+
+            {{-- Weekly schedule --}}
             @if(!empty($schedule))
             <div class="mb-8">
                 <div class="flex items-center justify-between mb-4">
@@ -41,64 +72,98 @@
                         @if($totalSavings > 0)
                             <span>💰 Économies: <strong class="text-red-500">{{ number_format($totalSavings, 2) }}$</strong></span>
                         @endif
+                        <form action="{{ route('grocery.meal-plan.regenerate') }}" method="POST" class="inline">
+                            @csrf
+                            <button type="submit" class="text-blue-500 hover:text-blue-700 text-xs underline"
+                                    onclick="return confirm('Regénérer le plan repas?')">
+                                🔄 Regénérer
+                            </button>
+                        </form>
                     </div>
                 </div>
 
-                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-                    @foreach($schedule as $day => $meal)
-                    <div class="bg-white dark:bg-gray-800 rounded-lg shadow-sm p-4 border-t-4 
-                        {{ $loop->first ? 'border-green-500' : ($loop->index < 5 ? 'border-blue-400' : 'border-yellow-400') }}">
-                        <div class="flex justify-between items-start mb-2">
-                            <span class="text-xs font-bold text-gray-500 uppercase tracking-wider">{{ $day }}</span>
-                            <span class="text-xl">{{ $meal['icon'] }}</span>
-                        </div>
-                        <h4 class="font-bold text-gray-800 dark:text-gray-200 mb-2">{{ $meal['name'] }}</h4>
-                        <div class="space-y-1 text-xs text-gray-500 dark:text-gray-400">
-                            <p>💪 {{ $meal['proteines'] }}g protéines | 🔥 {{ $meal['kcal'] }} kcal</p>
-                            <p class="text-green-600 font-semibold">💰 ~{{ number_format($meal['estimated_cost'], 2) }}$</p>
-                            @if($meal['savings'] > 0)
-                                <p class="text-red-500">💰 Économie: {{ number_format($meal['savings'], 2) }}$</p>
-                            @endif
-                        </div>
+                @php
+                    $slotIcons = ['breakfast' => '🌅', 'lunch' => '☀️', 'dinner' => '🌙', 'snack' => '🍪'];
+                    $slotLabels = ['breakfast' => 'Déjeuner', 'lunch' => 'Dîner', 'dinner' => 'Souper', 'snack' => 'Collation'];
+                @endphp
 
-                        {{-- Ingredients — on sale highlighted in green, full price in gray --}}
-                        <div class="mt-3 pt-2 border-t border-gray-100 dark:border-gray-700">
-                            <p class="text-xs text-gray-400 mb-1.5">Ingrédients:</p>
-                            <div class="flex flex-wrap gap-1">
-                                @php
-                                    $matchedProductNames = $meal['matched_deals']->pluck('product')->map(fn($p) => mb_strtolower($p))->toArray();
-                                @endphp
-                                @foreach($meal['ingredients'] as $ingredient)
-                                    @php
-                                        $onSale = collect($meal['matched_deals'])->first(function ($d) use ($ingredient) {
-                                            return str_contains(mb_strtolower($d->product), mb_strtolower($ingredient))
-                                                || str_contains(mb_strtolower($ingredient), mb_strtolower($d->product));
-                                        });
-                                    @endphp
-                                    @if($onSale)
-                                        <span class="text-xs bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-300 px-1.5 py-0.5 rounded font-medium" title="{{ $onSale->store->name ?? '' }}: {{ number_format($onSale->price, 2) }}$">
-                                            ✅ {{ $ingredient }}
-                                        </span>
-                                    @else
-                                        <span class="text-xs bg-gray-100 dark:bg-gray-700 text-gray-500 dark:text-gray-400 px-1.5 py-0.5 rounded line-through">
-                                            {{ $ingredient }}
-                                        </span>
-                                    @endif
-                                @endforeach
+                <div class="space-y-4">
+                    @foreach($schedule as $day => $meals)
+                    <div class="bg-white dark:bg-gray-800 rounded-lg shadow-sm overflow-hidden">
+                        {{-- Day header with calorie total --}}
+                        <div class="flex items-center justify-between px-4 py-3 bg-gray-50 dark:bg-gray-700/50">
+                            <div class="flex items-center gap-3">
+                                <span class="text-xs font-bold text-gray-500 uppercase tracking-wider">{{ $day }}</span>
+                                <span class="text-xs text-gray-400">
+                                    {{ count($meals) }} repas
+                                </span>
+                            </div>
+                            <div class="flex items-center gap-4 text-xs">
+                                @if(isset($dailyTotals[$day]))
+                                <span class="text-green-600 font-semibold">
+                                    🔥 {{ $dailyTotals[$day]['total_calories'] }} kcal
+                                </span>
+                                <span class="text-blue-500">💪 {{ $dailyTotals[$day]['total_protein'] }}g</span>
+                                <span class="text-yellow-500">🥖 {{ round($dailyTotals[$day]['total_carbs']) }}g</span>
+                                @endif
                             </div>
                         </div>
 
-                        {{-- Deals detail --}}
-                        @if($meal['matched_deals']->isNotEmpty())
-                        <div class="mt-2 pt-2 border-t border-gray-100 dark:border-gray-700">
-                            <p class="text-xs text-gray-400 mb-1">Spéciaux utilisés:</p>
-                            @foreach($meal['matched_deals'] as $md)
-                            <span class="text-xs text-blue-600 dark:text-blue-300 block">
-                                🏪 {{ $md->store->name ?? '' }} — {{ $md->product }} @ {{ number_format($md->price, 2) }}$
-                            </span>
-                            @endforeach
+                        {{-- Meals for this day --}}
+                        <div class="p-4">
+                            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-3">
+                                @foreach($meals as $meal)
+                                <div class="border border-gray-100 dark:border-gray-700 rounded-lg p-3
+                                    {{ $meal['assigned_slot'] === 'dinner' ? 'bg-green-50/50 dark:bg-green-900/5' : '' }}">
+                                    <div class="flex items-center justify-between mb-1">
+                                        <span class="text-xs font-medium text-gray-400 uppercase tracking-wide">
+                                            {{ $slotIcons[$meal['assigned_slot']] ?? '🍽️' }}
+                                            {{ $slotLabels[$meal['assigned_slot']] ?? $meal['assigned_slot'] }}
+                                        </span>
+                                        <span class="text-lg">{{ $meal['icon'] }}</span>
+                                    </div>
+                                    <h4 class="font-semibold text-sm text-gray-800 dark:text-gray-200">{{ $meal['name'] }}</h4>
+                                    <div class="flex gap-2 mt-1 text-xs text-gray-500">
+                                        <span>🔥 {{ $meal['kcal'] }} kcal</span>
+                                        <span>💪 {{ $meal['proteines'] }}g</span>
+                                        @if($meal['estimated_cost'] > 0)
+                                        <span class="text-green-600">💰 {{ number_format($meal['estimated_cost'], 2) }}$</span>
+                                        @endif
+                                    </div>
+
+                                    {{-- Ingredients --}}
+                                    <div class="mt-2 flex flex-wrap gap-1">
+                                        @foreach($meal['ingredients'] as $ingredient)
+                                            @php
+                                                $onSale = collect($meal['matched_deals'])->first(function ($d) use ($ingredient) {
+                                                    return str_contains(mb_strtolower($d->product), mb_strtolower($ingredient))
+                                                        || str_contains(mb_strtolower($ingredient), mb_strtolower($d->product));
+                                                });
+                                            @endphp
+                                            @if($onSale)
+                                                <span class="text-xs bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-300 px-1.5 py-0.5 rounded font-medium">
+                                                    ✅ {{ $ingredient }}
+                                                </span>
+                                            @else
+                                                <span class="text-xs bg-gray-100 dark:bg-gray-700 text-gray-500 dark:text-gray-400 px-1.5 py-0.5 rounded line-through">
+                                                    {{ $ingredient }}
+                                                </span>
+                                            @endif
+                                        @endforeach
+                                    </div>
+
+                                    {{-- Deals detail --}}
+                                    @if($meal['matched_deals']->isNotEmpty())
+                                    <div class="mt-2 text-xs text-blue-600 dark:text-blue-300">
+                                        @foreach($meal['matched_deals'] as $md)
+                                        <span class="block">🏪 {{ $md->store->name ?? '' }}: {{ $md->product }} @ {{ number_format($md->price, 2) }}$</span>
+                                        @endforeach
+                                    </div>
+                                    @endif
+                                </div>
+                                @endforeach
+                            </div>
                         </div>
-                        @endif
                     </div>
                     @endforeach
                 </div>
@@ -133,6 +198,9 @@
                                     <h4 class="font-semibold text-sm text-gray-800 dark:text-gray-200">{{ $recipe['name'] }}</h4>
                                     <p class="text-xs text-gray-500">
                                         💪 {{ $recipe['proteines'] }}g · 🔥 {{ $recipe['kcal'] }} kcal
+                                        @if(isset($recipe['suggested_slot']))
+                                            · {{ $slotLabels[$recipe['suggested_slot']] ?? $recipe['suggested_slot'] }}
+                                        @endif
                                     </p>
                                 </div>
                             </div>
@@ -144,22 +212,20 @@
                             </div>
                         </div>
 
-                        <div class="mt-3">
-                            <div class="flex flex-wrap gap-1">
-                                @foreach($recipe['ingredients'] as $ing)
-                                    @php
-                                        $onSale = $recipe['matched_deals']->first(function ($d) use ($ing) {
-                                            return str_contains(mb_strtolower($d->product), mb_strtolower($ing))
-                                                || str_contains(mb_strtolower($ing), mb_strtolower($d->product));
-                                        });
-                                    @endphp
-                                    @if($onSale)
-                                        <span class="text-xs bg-green-50 dark:bg-green-900/20 text-green-700 dark:text-green-300 px-1.5 py-0.5 rounded">✅ {{ $ing }}</span>
-                                    @else
-                                        <span class="text-xs bg-gray-50 dark:bg-gray-700 text-gray-400 px-1.5 py-0.5 rounded">{{ $ing }}</span>
-                                    @endif
-                                @endforeach
-                            </div>
+                        <div class="mt-2 flex flex-wrap gap-1">
+                            @foreach($recipe['ingredients'] as $ing)
+                                @php
+                                    $onSale = $recipe['matched_deals']->first(function ($d) use ($ing) {
+                                        return str_contains(mb_strtolower($d->product), mb_strtolower($ing))
+                                            || str_contains(mb_strtolower($ing), mb_strtolower($d->product));
+                                    });
+                                @endphp
+                                @if($onSale)
+                                    <span class="text-xs bg-green-50 dark:bg-green-900/20 text-green-700 dark:text-green-300 px-1.5 py-0.5 rounded">✅ {{ $ing }}</span>
+                                @else
+                                    <span class="text-xs bg-gray-50 dark:bg-gray-700 text-gray-400 px-1.5 py-0.5 rounded">{{ $ing }}</span>
+                                @endif
+                            @endforeach
                         </div>
 
                         @if($recipe['estimated_cost'] > 0)
@@ -229,19 +295,13 @@
             @endif
             @endif
 
-            <div class="text-center space-x-4">
-                <a href="{{ route('grocery') }}" class="text-blue-500 hover:underline text-sm">
-                    🛒 Voir les circulaires
+            <div class="text-center space-x-4 mt-4">
+                <a href="{{ route('grocery') }}" class="text-blue-500 hover:underline text-sm">🛒 Circulaires</a>
+                <a href="{{ route('grocery.meal-plan.tracking') }}" class="text-blue-500 hover:underline text-sm font-semibold">
+                    🔥 Suivi calorique
                 </a>
-                <a href="{{ route('grocery.shopping-list') }}" class="text-blue-500 hover:underline text-sm">
-                    🛍️ Liste d'épicerie →
-                </a>
-                <a href="{{ route('grocery.meal-plan.history') }}" class="text-blue-500 hover:underline text-sm">
-                    📜 Historique
-                </a>
-                <a href="{{ route('grocery.price-intel') }}" class="text-blue-500 hover:underline text-sm">
-                    💹 Price Intelligence
-                </a>
+                <a href="{{ route('grocery.meal-plan.history') }}" class="text-blue-500 hover:underline text-sm">📜 Historique</a>
+                <a href="{{ route('grocery.price-intel') }}" class="text-blue-500 hover:underline text-sm">💹 Prix</a>
             </div>
         </div>
     </div>

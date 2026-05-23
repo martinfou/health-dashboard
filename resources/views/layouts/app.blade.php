@@ -46,6 +46,7 @@
                             <a href="{{ route('grocery.predictions') }}" class="text-xs text-gray-500 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white">📈 Prédictions</a>
                             <a href="{{ route('grocery.flipp') }}" class="text-xs text-gray-500 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white">🇫🇷 Flipp</a>
                             <a href="{{ route('grocery.loyalty') }}" class="text-xs text-gray-500 dark:text-gray-400 hover:text-purple-500 dark:hover:text-purple-400">🏆 Points</a>
+                            <a href="{{ route('grocery.annual-stats') }}" class="text-xs text-gray-500 dark:text-gray-400 hover:text-green-500 dark:hover:text-green-400 font-semibold">📊 Bilan annuel</a>
                         </div>
                     </div>
                 </div>

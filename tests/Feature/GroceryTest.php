@@ -217,4 +217,22 @@ class GroceryTest extends TestCase
         $response->assertSee('Test Product');
         $response->assertSee('Économie 3.00');
     }
+
+    public function test_annual_stats_page_loads(): void
+    {
+        $response = $this->actingAs($this->user)->get('/grocery/annual-stats');
+
+        $response->assertOk();
+        $response->assertSee('Bilan annuel');
+    }
+
+    public function test_annual_stats_trends_endpoint(): void
+    {
+        $store = GroceryStore::factory()->create(['name' => 'Maxi']);
+
+        $response = $this->actingAs($this->user)->get('/grocery/annual-stats/trends');
+
+        $response->assertOk();
+        $response->assertJsonStructure(['months', 'stores']);
+    }
 }

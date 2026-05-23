@@ -76,6 +76,12 @@ const showingNavigationDropdown = ref(false);
                                     🍽️ Repas
                                 </NavLink>
                                 <NavLink
+                                    :href="route('grocery.annual-stats')"
+                                    :active="route().current('grocery.annual-stats')"
+                                >
+                                    📊 Bilan annuel
+                                </NavLink>
+                                <NavLink
                                     :href="route('trading')"
                                     :active="route().current('trading')"
                                 >

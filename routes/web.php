@@ -61,4 +61,8 @@ Route::middleware(['auth', 'verified'])->group(function () {
 
     // Feature 7: Loyalty Points
     Route::get('/grocery/loyalty', [App\Http\Controllers\LoyaltyController::class, 'index'])->name('grocery.loyalty');
+
+    // Annual Store Stats
+    Route::get('/grocery/annual-stats', [App\Http\Controllers\GroceryAnnualStatsController::class, 'index'])->name('grocery.annual-stats');
+    Route::get('/grocery/annual-stats/trends', [App\Http\Controllers\GroceryAnnualStatsController::class, 'trendsData'])->name('grocery.annual-stats.trends');
 });

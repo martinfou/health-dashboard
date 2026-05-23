@@ -111,8 +111,23 @@
             </div>
             @endif
 
+            {{-- Grocery nav --}}
+            <div class="mt-8 bg-white dark:bg-gray-800 rounded-lg shadow-sm p-4">
+                <div class="flex flex-wrap items-center justify-center gap-3 text-sm">
+                    <span class="text-gray-500 dark:text-gray-400 font-medium">Outils:</span>
+                    <a href="{{ route('grocery.price-intel') }}" class="px-3 py-1.5 bg-blue-50 dark:bg-blue-900/20 text-blue-600 dark:text-blue-300 rounded-lg hover:bg-blue-100 dark:hover:bg-blue-900/40 transition">💹 Prix</a>
+                    <a href="{{ route('grocery.meal-plan') }}" class="px-3 py-1.5 bg-green-50 dark:bg-green-900/20 text-green-600 dark:text-green-300 rounded-lg hover:bg-green-100 dark:hover:bg-green-900/40 transition">🍽️ Repas</a>
+                    <a href="{{ route('grocery.stock-up') }}" class="px-3 py-1.5 bg-red-50 dark:bg-red-900/20 text-red-600 dark:text-red-300 rounded-lg hover:bg-red-100 dark:hover:bg-red-900/40 transition">🚨 Stock Up</a>
+                    <a href="{{ route('grocery.heatmap') }}" class="px-3 py-1.5 bg-yellow-50 dark:bg-yellow-900/20 text-yellow-600 dark:text-yellow-300 rounded-lg hover:bg-yellow-100 dark:hover:bg-yellow-900/40 transition">📊 Heatmap</a>
+                    <a href="{{ route('grocery.shopping-list') }}" class="px-3 py-1.5 bg-purple-50 dark:bg-purple-900/20 text-purple-600 dark:text-purple-300 rounded-lg hover:bg-purple-100 dark:hover:bg-purple-900/40 transition">🛍️ Liste</a>
+                    <a href="{{ route('grocery.predictions') }}" class="px-3 py-1.5 bg-indigo-50 dark:bg-indigo-900/20 text-indigo-600 dark:text-indigo-300 rounded-lg hover:bg-indigo-100 dark:hover:bg-indigo-900/40 transition">📈 Prédictions</a>
+                    <a href="{{ route('grocery.flipp') }}" class="px-3 py-1.5 bg-cyan-50 dark:bg-cyan-900/20 text-cyan-600 dark:text-cyan-300 rounded-lg hover:bg-cyan-100 dark:hover:bg-cyan-900/40 transition">🇫🇷 Flipp</a>
+                    <a href="{{ route('grocery.loyalty') }}" class="px-3 py-1.5 bg-violet-50 dark:bg-violet-900/20 text-violet-600 dark:text-violet-300 rounded-lg hover:bg-violet-100 dark:hover:bg-violet-900/40 transition">🏆 Points</a>
+                </div>
+            </div>
+
             {{-- Nav link --}}
-            <div class="mt-8 text-center">
+            <div class="mt-4 text-center">
                 <a href="{{ route('dashboard') }}" class="text-blue-500 hover:underline text-sm">
                     ← Retour au tableau de bord
                 </a>

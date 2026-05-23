@@ -31,12 +31,21 @@
                         <a href="{{ route('dashboard') }}" class="text-lg font-bold text-gray-800 dark:text-gray-200">
                             🏥 Health Dashboard
                         </a>
-                        <div class="hidden sm:flex sm:space-x-6 sm:ml-10">
+                        <div class="hidden sm:flex sm:space-x-4 sm:ml-10">
                             <a href="{{ route('dashboard') }}" class="text-sm text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white">Dashboard</a>
                             <a href="{{ route('grocery') }}" class="text-sm text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white">🛒 Circulaires</a>
                             <a href="{{ route('grocery.price-intel') }}" class="text-sm text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white">💹 Prix</a>
                             <a href="{{ route('grocery.meal-plan') }}" class="text-sm text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white">🍽️ Repas</a>
                             <a href="{{ route('grocery.history') }}" class="text-sm text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white">📈 Historique</a>
+                        </div>
+                        {{-- Droplet: more grocery links --}}
+                        <div class="hidden lg:flex lg:space-x-3 lg:ml-4">
+                            <a href="{{ route('grocery.stock-up') }}" class="text-xs text-gray-500 dark:text-gray-400 hover:text-red-500 dark:hover:text-red-400">🚨 Stock Up</a>
+                            <a href="{{ route('grocery.heatmap') }}" class="text-xs text-gray-500 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white">📊 Heatmap</a>
+                            <a href="{{ route('grocery.shopping-list') }}" class="text-xs text-gray-500 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white">🛍️ Liste</a>
+                            <a href="{{ route('grocery.predictions') }}" class="text-xs text-gray-500 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white">📈 Prédictions</a>
+                            <a href="{{ route('grocery.flipp') }}" class="text-xs text-gray-500 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white">🇫🇷 Flipp</a>
+                            <a href="{{ route('grocery.loyalty') }}" class="text-xs text-gray-500 dark:text-gray-400 hover:text-purple-500 dark:hover:text-purple-400">🏆 Points</a>
                         </div>
                     </div>
                 </div>

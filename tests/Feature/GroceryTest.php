@@ -159,6 +159,43 @@ class GroceryTest extends TestCase
         $response->assertSee('Aucun spécial cette semaine');
     }
 
+    public function test_meal_plan_history_page_loads(): void
+    {
+        $this->seed(GroceryDealSeeder::class);
+
+        $response = $this->actingAs($this->user)->get('/grocery/meal-plan/history');
+
+        $response->assertOk();
+        $response->assertSee('Historique');
+        $response->assertSee('Semaines planifiées');
+    }
+
+    public function test_meal_plan_records_history(): void
+    {
+        $this->seed(GroceryDealSeeder::class);
+
+        $response = $this->actingAs($this->user)->get('/grocery/meal-plan');
+
+        $response->assertOk();
+
+        // A meal plan was generated and should be recorded
+        $this->assertDatabaseCount('meal_plan_usages', 7);
+    }
+
+    public function test_meal_plan_excludes_recently_used_recipes(): void
+    {
+        $this->seed(GroceryDealSeeder::class);
+
+        // First visit — generates plan
+        $this->actingAs($this->user)->get('/grocery/meal-plan');
+
+        // Second visit — should exclude previously used
+        $response = $this->actingAs($this->user)->get('/grocery/meal-plan');
+
+        $response->assertOk();
+        $response->assertSee('exclue');
+    }
+
     public function test_grocery_controller_returns_deal_savings(): void
     {
         $store = GroceryStore::factory()->create(['name' => 'Test Store']);

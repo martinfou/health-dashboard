@@ -35,8 +35,6 @@ return [
         ],
     ],
 
-];
-
     'oanda' => [
         'token' => env('OANDA_API_KEY'),
         'account_id' => env('OANDA_ACCOUNT_ID'),

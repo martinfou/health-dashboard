@@ -58,6 +58,30 @@ const showingNavigationDropdown = ref(false);
                                     Journal
                                 </NavLink>
                                 <NavLink
+                                    :href="route('grocery')"
+                                    :active="route().current('grocery')"
+                                >
+                                    🛒 Circulaires
+                                </NavLink>
+                                <NavLink
+                                    :href="route('grocery.price-intel')"
+                                    :active="route().current('grocery.price-intel')"
+                                >
+                                    💹 Prix
+                                </NavLink>
+                                <NavLink
+                                    :href="route('grocery.meal-plan')"
+                                    :active="route().current('grocery.meal-plan')"
+                                >
+                                    🍽️ Repas
+                                </NavLink>
+                                <NavLink
+                                    :href="route('grocery.annual-stats')"
+                                    :active="route().current('grocery.annual-stats')"
+                                >
+                                    📊 Bilan annuel
+                                </NavLink>
+                                <NavLink
                                     :href="route('trading')"
                                     :active="route().current('trading')"
                                 >

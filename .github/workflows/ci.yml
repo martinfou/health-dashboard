@@ -13,7 +13,12 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        php: [8.3, 8.4]
+        # 8.3 retire le 14 oct 2026 : composer.json annonce encore ^8.3, mais
+        # le lock resout symfony/* v8 (>=8.4), donc `composer install` echoue
+        # sur 8.3 ("Your lock file does not contain a compatible set of
+        # packages"). Le plancher reel du depot est 8.4. Remettre 8.3 ici
+        # seulement apres avoir remonte le lock en symfony 7.
+        php: [8.4]
 
     name: PHP ${{ matrix.php }}
 

@@ -4,7 +4,6 @@ namespace App\Services;
 
 use App\Models\GroceryStore;
 use App\Models\PriceHistory;
-use App\Models\PriceStat;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Collection;
 
@@ -51,14 +50,15 @@ class GroceryAnnualStatsService
                     'best_deal' => null,
                     'score' => 0,
                 ];
+
                 continue;
             }
 
-            $savings = $yearDeals->map(fn($d) => max(0, ($d->regular_price ?? 0) - $d->sale_price));
-            $savingsPct = $yearDeals->filter(fn($d) => ($d->regular_price ?? 0) > 0)
-                ->map(fn($d) => round((($d->regular_price - $d->sale_price) / $d->regular_price) * 100, 1));
+            $savings = $yearDeals->map(fn ($d) => max(0, ($d->regular_price ?? 0) - $d->sale_price));
+            $savingsPct = $yearDeals->filter(fn ($d) => ($d->regular_price ?? 0) > 0)
+                ->map(fn ($d) => round((($d->regular_price - $d->sale_price) / $d->regular_price) * 100, 1));
 
-            $bestDeal = $yearDeals->sortByDesc(fn($d) => ($d->regular_price ?? 0) - $d->sale_price)->first();
+            $bestDeal = $yearDeals->sortByDesc(fn ($d) => ($d->regular_price ?? 0) - $d->sale_price)->first();
 
             $totalSavings = round($savings->sum(), 2);
             $avgPct = $savingsPct->isNotEmpty() ? round($savingsPct->avg(), 1) : 0;
@@ -106,7 +106,7 @@ class GroceryAnnualStatsService
             $storeDeals = PriceHistory::where('grocery_store_id', $store->id)
                 ->where('scraped_at', '>=', $since)
                 ->get()
-                ->groupBy(fn($d) => Carbon::parse($d->scraped_at)->format('Y-m'));
+                ->groupBy(fn ($d) => Carbon::parse($d->scraped_at)->format('Y-m'));
 
             $monthData = [];
             foreach ($months as $month) {
@@ -114,12 +114,12 @@ class GroceryAnnualStatsService
                 $monthData[] = $monthDeals->isNotEmpty() ? [
                     'deals' => $monthDeals->count(),
                     'avg_savings_pct' => round(
-                        $monthDeals->filter(fn($d) => ($d->regular_price ?? 0) > 0)
-                            ->map(fn($d) => (($d->regular_price - $d->sale_price) / $d->regular_price) * 100)
+                        $monthDeals->filter(fn ($d) => ($d->regular_price ?? 0) > 0)
+                            ->map(fn ($d) => (($d->regular_price - $d->sale_price) / $d->regular_price) * 100)
                             ->avg() ?? 0, 1
                     ),
                     'total_savings' => round(
-                        $monthDeals->sum(fn($d) => max(0, ($d->regular_price ?? 0) - $d->sale_price)), 2
+                        $monthDeals->sum(fn ($d) => max(0, ($d->regular_price ?? 0) - $d->sale_price)), 2
                     ),
                 ] : null;
             }
@@ -159,13 +159,15 @@ class GroceryAnnualStatsService
                     ->where('scraped_at', '>=', $since)
                     ->get();
 
-                if ($catDeals->isEmpty()) continue;
+                if ($catDeals->isEmpty()) {
+                    continue;
+                }
 
-                $avgSavings = $catDeals->filter(fn($d) => ($d->regular_price ?? 0) > 0)
-                    ->map(fn($d) => (($d->regular_price - $d->sale_price) / $d->regular_price) * 100)
+                $avgSavings = $catDeals->filter(fn ($d) => ($d->regular_price ?? 0) > 0)
+                    ->map(fn ($d) => (($d->regular_price - $d->sale_price) / $d->regular_price) * 100)
                     ->avg() ?? 0;
 
-                $totalSavings = $catDeals->sum(fn($d) => max(0, ($d->regular_price ?? 0) - $d->sale_price));
+                $totalSavings = $catDeals->sum(fn ($d) => max(0, ($d->regular_price ?? 0) - $d->sale_price));
 
                 if ($avgSavings > $bestAvgSavings) {
                     $bestAvgSavings = $avgSavings;
@@ -202,7 +204,7 @@ class GroceryAnnualStatsService
                 ->whereNotNull('regular_price')
                 ->whereColumn('regular_price', '>', 'sale_price')
                 ->get()
-                ->map(fn($d) => [
+                ->map(fn ($d) => [
                     'store' => $store->name,
                     'product' => $d->product,
                     'category' => $d->category,
@@ -230,9 +232,11 @@ class GroceryAnnualStatsService
             ->whereColumn('regular_price', '>', 'sale_price')
             ->get();
 
-        if ($allDeals->isEmpty()) return [];
+        if ($allDeals->isEmpty()) {
+            return [];
+        }
 
-        $byCategoryMonth = $allDeals->groupBy(fn($d) => $d->category . '|' . Carbon::parse($d->scraped_at)->format('m'));
+        $byCategoryMonth = $allDeals->groupBy(fn ($d) => $d->category.'|'.Carbon::parse($d->scraped_at)->format('m'));
 
         $insights = [];
 
@@ -240,9 +244,9 @@ class GroceryAnnualStatsService
             [$category, $monthNum] = explode('|', $key);
             $monthName = Carbon::createFromFormat('m', $monthNum)->format('F');
 
-            $avgSavings = $deals->map(fn($d) => (($d->regular_price - $d->sale_price) / $d->regular_price) * 100)->avg();
+            $avgSavings = $deals->map(fn ($d) => (($d->regular_price - $d->sale_price) / $d->regular_price) * 100)->avg();
 
-            if (!isset($insights[$category])) {
+            if (! isset($insights[$category])) {
                 $insights[$category] = [
                     'category' => $category,
                     'best_month' => $monthName,

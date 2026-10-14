@@ -12,6 +12,7 @@ class GroceryStoreFactory extends Factory
     public function definition(): array
     {
         $name = fake()->randomElement(['Maxi', 'Super C', 'IGA', 'Costco', 'Walmart']);
+
         return [
             'name' => $name,
             'slug' => str($name)->slug(),

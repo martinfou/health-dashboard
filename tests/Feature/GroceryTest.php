@@ -4,6 +4,7 @@ namespace Tests\Feature;
 
 use App\Models\GroceryDeal;
 use App\Models\GroceryStore;
+use App\Models\MealPlanUsage;
 use App\Models\User;
 use Database\Seeders\GroceryDealSeeder;
 use Illuminate\Foundation\Testing\RefreshDatabase;
@@ -179,8 +180,8 @@ class GroceryTest extends TestCase
         $response->assertOk();
 
         // A meal plan was generated and should be recorded (multiple meals per day)
-        $this->assertGreaterThan(0, \App\Models\MealPlanUsage::count());
-        $this->assertGreaterThanOrEqual(1, \App\Models\MealPlanUsage::distinct('recipe_name')->count());
+        $this->assertGreaterThan(0, MealPlanUsage::count());
+        $this->assertGreaterThanOrEqual(1, MealPlanUsage::distinct('recipe_name')->count());
     }
 
     public function test_meal_plan_excludes_recently_used_recipes(): void

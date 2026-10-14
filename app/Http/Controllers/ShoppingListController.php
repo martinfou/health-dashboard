@@ -5,7 +5,6 @@ namespace App\Http\Controllers;
 use App\Models\GroceryDeal;
 use App\Services\RecipeMatcherService;
 use App\Services\ShoppingListService;
-use Illuminate\Http\Request;
 
 class ShoppingListController extends Controller
 {

@@ -1,14 +1,15 @@
 <?php
+
 namespace App\Http\Controllers;
 
+use App\Models\ActivityLog;
 use App\Models\BodyMeasurement;
 use App\Models\NutritionLog;
 use App\Models\WeightReading;
-use App\Models\ActivityLog;
 use App\Services\HealthInsights\HealthInsightService;
 use Illuminate\Http\Request;
-use Inertia\Inertia;
 use Illuminate\Support\Facades\DB;
+use Inertia\Inertia;
 
 class DashboardController extends Controller
 {

@@ -12,7 +12,7 @@ class GroceryDeal extends Model
     protected $fillable = [
         'grocery_store_id', 'product', 'category', 'price', 'unit',
         'regular_price', 'valid_from', 'valid_until', 'flyer_page',
-        'image_url', 'is_bio', 'store_brand'
+        'image_url', 'is_bio', 'store_brand',
     ];
 
     protected $casts = [
@@ -33,6 +33,7 @@ class GroceryDeal extends Model
         if ($this->regular_price && $this->regular_price > $this->price) {
             return round($this->regular_price - $this->price, 2);
         }
+
         return 0;
     }
 
@@ -41,6 +42,7 @@ class GroceryDeal extends Model
         if ($this->regular_price && $this->regular_price > 0) {
             return round(($this->regular_price - $this->price) / $this->regular_price * 100);
         }
+
         return 0;
     }
 

@@ -12,6 +12,7 @@ class FlippController extends Controller
     public function index()
     {
         $categories = $this->unifiedPriceService->getCategories();
+
         return view('grocery.flipp', compact('categories'));
     }
 

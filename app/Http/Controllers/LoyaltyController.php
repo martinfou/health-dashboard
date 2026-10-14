@@ -5,7 +5,6 @@ namespace App\Http\Controllers;
 use App\Models\GroceryDeal;
 use App\Models\LoyaltyProgram;
 use App\Services\LoyaltyMatcherService;
-use Illuminate\Http\Request;
 
 class LoyaltyController extends Controller
 {

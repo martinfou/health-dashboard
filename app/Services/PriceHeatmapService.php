@@ -3,7 +3,6 @@
 namespace App\Services;
 
 use App\Models\PriceHistory;
-use Illuminate\Support\Facades\DB;
 
 class PriceHeatmapService
 {
@@ -37,7 +36,9 @@ class PriceHeatmapService
         $weeks = [];
         foreach ($weekly as $week => $items) {
             $prices = $items->pluck('sale_price')->filter()->values();
-            if ($prices->isEmpty()) continue;
+            if ($prices->isEmpty()) {
+                continue;
+            }
 
             $min = $prices->min();
             $max = $prices->max();
@@ -58,7 +59,7 @@ class PriceHeatmapService
                 $percentile < 40 => 'light-green',
                 $percentile < 60 => 'yellow',
                 $percentile < 80 => 'orange',
-                default          => 'red',         // Worst prices
+                default => 'red',         // Worst prices
             };
 
             $weeks[] = [
@@ -83,12 +84,12 @@ class PriceHeatmapService
     private function colorLabel(string $color): string
     {
         return match ($color) {
-            'green'       => '🔥 Excellent prix',
+            'green' => '🔥 Excellent prix',
             'light-green' => '👍 Bon prix',
-            'yellow'      => '😐 Prix moyen',
-            'orange'      => '⚠️ Prix élevé',
-            'red'         => '❌ Prix très élevé',
-            default       => 'Données insuffisantes',
+            'yellow' => '😐 Prix moyen',
+            'orange' => '⚠️ Prix élevé',
+            'red' => '❌ Prix très élevé',
+            default => 'Données insuffisantes',
         };
     }
 }

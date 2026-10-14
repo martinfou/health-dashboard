@@ -5,7 +5,7 @@ namespace App\Services;
 use App\Models\GroceryDeal;
 use App\Models\PriceHistory;
 use App\Models\StockUpAlert;
-use Illuminate\Support\Facades\DB;
+use App\Notifications\StockUpAlertNotification;
 use Illuminate\Support\Facades\Notification;
 
 class StockUpAlertService
@@ -38,7 +38,7 @@ class StockUpAlertService
             if ($threshold <= 5.0) {
                 // Avoid duplicate alerts for the same deal
                 $existing = StockUpAlert::where('grocery_deal_id', $deal->id)->first();
-                if (!$existing) {
+                if (! $existing) {
                     StockUpAlert::create([
                         'grocery_deal_id' => $deal->id,
                         'product' => $deal->product,
@@ -66,7 +66,7 @@ class StockUpAlertService
 
         foreach ($alerts as $alert) {
             Notification::route('telegram', config('services.telegram-bot-api.chat_id'))
-                ->notify(new \App\Notifications\StockUpAlertNotification($alert));
+                ->notify(new StockUpAlertNotification($alert));
 
             $alert->update(['notified_at' => now()]);
             $count++;

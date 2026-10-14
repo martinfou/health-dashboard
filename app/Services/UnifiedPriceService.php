@@ -3,7 +3,6 @@
 namespace App\Services;
 
 use App\Models\GroceryDeal;
-use App\Models\GroceryStore;
 use Illuminate\Support\Facades\DB;
 
 class UnifiedPriceService
@@ -78,7 +77,9 @@ class UnifiedPriceService
         foreach ($deals->groupBy('product') as $name => $items) {
             // Score relevancy
             $similar = similar_text(mb_strtolower($searchTerm), mb_strtolower($name), $pct);
-            if ($pct < 30) continue;
+            if ($pct < 30) {
+                continue;
+            }
 
             $results[] = $this->buildProductEntry($items, $name);
         }

@@ -46,7 +46,7 @@ class LoyaltyMatcherService
                 $spendMatch = $offer->required_spend && $deal->price >= $offer->required_spend;
 
                 // Fourth: no specific product/category = general offer
-                $generalMatch = !$offer->product && !$offer->category && !$offer->required_spend;
+                $generalMatch = ! $offer->product && ! $offer->category && ! $offer->required_spend;
 
                 if ($categoryMatch || $productMatch || $spendMatch || $generalMatch) {
                     // Calculate points value in dollars (1000 pts ≈ 1$)
@@ -71,8 +71,8 @@ class LoyaltyMatcherService
         $seen = [];
         $uniqueMatches = [];
         foreach ($matches as $m) {
-            $key = $m['deal']->id . '|' . $m['loyalty_offer']->id;
-            if (!isset($seen[$key])) {
+            $key = $m['deal']->id.'|'.$m['loyalty_offer']->id;
+            if (! isset($seen[$key])) {
                 $seen[$key] = true;
                 $uniqueMatches[] = $m;
             }

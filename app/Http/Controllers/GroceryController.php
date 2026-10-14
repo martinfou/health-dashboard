@@ -4,7 +4,6 @@ namespace App\Http\Controllers;
 
 use App\Models\GroceryDeal;
 use App\Models\GroceryStore;
-use Illuminate\Http\Request;
 
 class GroceryController extends Controller
 {

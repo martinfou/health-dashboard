@@ -3,7 +3,6 @@
 namespace App\Http\Controllers;
 
 use App\Models\GroceryDeal;
-use App\Models\GroceryStore;
 use App\Models\MealPlanTracking;
 use App\Models\MealPlanUsage;
 use App\Models\NutritionLog;
@@ -35,7 +34,7 @@ class MealPlanController extends Controller
             ->where('planned_date', '>=', $weekStart)
             ->exists();
 
-        if (!$hasTracking) {
+        if (! $hasTracking) {
             $this->recipeMatcher->saveMealPlanToTracking($userId, $schedule, $dailyTotals);
         }
 
@@ -48,7 +47,7 @@ class MealPlanController extends Controller
         foreach ($schedule as $day => $meals) {
             foreach ($meals as $meal) {
                 foreach ($meal['matched_deals'] ?? [] as $deal) {
-                    $key = $deal->id ?? $deal->product . '|' . ($deal->store->name ?? '');
+                    $key = $deal->id ?? $deal->product.'|'.($deal->store->name ?? '');
                     $allMatchedDeals[$key] = $deal;
                 }
             }
@@ -125,11 +124,11 @@ class MealPlanController extends Controller
     {
         $tracking = $this->recipeMatcher->markMealEaten($trackingId);
 
-        if (!$tracking) {
+        if (! $tracking) {
             return back()->with('error', 'Repas introuvable.');
         }
 
-        return back()->with('success', '✅ ' . $tracking->recipe_name . ' marqué comme mangé !');
+        return back()->with('success', '✅ '.$tracking->recipe_name.' marqué comme mangé !');
     }
 
     /**
@@ -138,7 +137,7 @@ class MealPlanController extends Controller
     public function uneatMeal(int $trackingId)
     {
         $tracking = MealPlanTracking::find($trackingId);
-        if (!$tracking) {
+        if (! $tracking) {
             return back()->with('error', 'Repas introuvable.');
         }
 
@@ -148,7 +147,7 @@ class MealPlanController extends Controller
 
         $tracking->update(['eaten' => false, 'eaten_at' => null, 'nutrition_log_id' => null]);
 
-        return back()->with('success', '↩️ ' . $tracking->recipe_name . ' remis dans le plan.');
+        return back()->with('success', '↩️ '.$tracking->recipe_name.' remis dans le plan.');
     }
 
     /**

@@ -52,12 +52,12 @@ class MealPlanUsage extends Model
     /**
      * Record multiple recipes from a meal plan.
      *
-     * @param array $schedule Format: ['Lundi' => [['name' => ..., ...], ...], ...]
+     * @param  array  $schedule  Format: ['Lundi' => [['name' => ..., ...], ...], ...]
      */
     public static function recordUsage(array $schedule, string $weekLabel): void
     {
         $now = Carbon::now()->startOfWeek();
-        $dayNames = ['Lundi','Mardi','Mercredi','Jeudi','Vendredi','Samedi','Dimanche'];
+        $dayNames = ['Lundi', 'Mardi', 'Mercredi', 'Jeudi', 'Vendredi', 'Samedi', 'Dimanche'];
 
         foreach ($schedule as $day => $meals) {
             // Support both old format (single meal) and new format (array of meals)
@@ -65,13 +65,19 @@ class MealPlanUsage extends Model
                 $meals = [$meals];
             }
 
-            if (!is_array($meals)) continue;
+            if (! is_array($meals)) {
+                continue;
+            }
 
             $dayIndex = array_search($day, $dayNames);
-            if ($dayIndex === false) continue;
+            if ($dayIndex === false) {
+                continue;
+            }
 
             foreach ($meals as $meal) {
-                if (!isset($meal['name'])) continue;
+                if (! isset($meal['name'])) {
+                    continue;
+                }
 
                 static::updateOrCreate(
                     [

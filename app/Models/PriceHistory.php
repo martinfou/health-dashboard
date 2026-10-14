@@ -7,9 +7,10 @@ use Illuminate\Database\Eloquent\Model;
 class PriceHistory extends Model
 {
     protected $table = 'price_history';
+
     protected $fillable = [
         'grocery_store_id', 'product', 'category', 'sale_price', 'regular_price',
-        'unit', 'valid_from', 'valid_until', 'scraped_at', 'store_brand', 'is_bio'
+        'unit', 'valid_from', 'valid_until', 'scraped_at', 'store_brand', 'is_bio',
     ];
 
     protected $casts = [

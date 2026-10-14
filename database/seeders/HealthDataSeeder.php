@@ -1,11 +1,12 @@
 <?php
+
 namespace Database\Seeders;
 
-use App\Models\User;
-use App\Models\WeightReading;
+use App\Models\ActivityLog;
 use App\Models\BodyMeasurement;
 use App\Models\NutritionLog;
-use App\Models\ActivityLog;
+use App\Models\User;
+use App\Models\WeightReading;
 use Illuminate\Database\Seeder;
 
 class HealthDataSeeder extends Seeder
@@ -150,10 +151,10 @@ class HealthDataSeeder extends Seeder
         }
 
         $this->command->info('Health data seeded successfully!');
-        $this->command->info("User: martin@fournier.dev / password");
-        $this->command->info("Weights: " . count($weights));
-        $this->command->info("Measurements: " . count($measurements));
-        $this->command->info("Nutrition logs: " . count($nutrition));
-        $this->command->info("Activity months: " . count($activities));
+        $this->command->info('User: martin@fournier.dev / password');
+        $this->command->info('Weights: '.count($weights));
+        $this->command->info('Measurements: '.count($measurements));
+        $this->command->info('Nutrition logs: '.count($nutrition));
+        $this->command->info('Activity months: '.count($activities));
     }
 }

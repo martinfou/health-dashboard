@@ -3,7 +3,6 @@
 namespace App\Services;
 
 use App\Models\PriceHistory;
-use Illuminate\Support\Facades\DB;
 
 class PricePredictorService
 {
@@ -59,7 +58,7 @@ class PricePredictorService
 
         usort($monthlyData, fn ($a, $b) => strcmp($a['month'], $b['month']));
 
-        $currentPrice = !empty($monthlyData) ? end($monthlyData)['avg_price'] : null;
+        $currentPrice = ! empty($monthlyData) ? end($monthlyData)['avg_price'] : null;
 
         // Calculate trend from last 3 months
         $last3 = array_slice($monthlyData, -3);
@@ -78,9 +77,9 @@ class PricePredictorService
 
         // Find best and worst months (seasonal pattern)
         $byCalendarMonth = collect($monthlyData)->groupBy(fn ($d) => substr($d['month'], 5, 2));
-        $monthNames = ['01'=>'Janvier','02'=>'Février','03'=>'Mars','04'=>'Avril',
-                       '05'=>'Mai','06'=>'Juin','07'=>'Juillet','08'=>'Août',
-                       '09'=>'Septembre','10'=>'Octobre','11'=>'Novembre','12'=>'Décembre'];
+        $monthNames = ['01' => 'Janvier', '02' => 'Février', '03' => 'Mars', '04' => 'Avril',
+            '05' => 'Mai', '06' => 'Juin', '07' => 'Juillet', '08' => 'Août',
+            '09' => 'Septembre', '10' => 'Octobre', '11' => 'Novembre', '12' => 'Décembre'];
 
         $bestMonth = null;
         $worstMonth = null;
@@ -148,12 +147,12 @@ class PricePredictorService
         }
 
         return match ($trend) {
-            'up' => "📈 Les prix sont en hausse saisonnière. En {$bestMonth}, prévoir +" .
-                    ($prediction && $current ? round((($prediction - $current) / $current) * 100) : '5') .
-                    "%. Achetez maintenant avant la hausse.",
-            'down' => "📉 Les prix sont en baisse. Attendez encore quelques semaines pour profiter du meilleur prix.",
+            'up' => "📈 Les prix sont en hausse saisonnière. En {$bestMonth}, prévoir +".
+                    ($prediction && $current ? round((($prediction - $current) / $current) * 100) : '5').
+                    '%. Achetez maintenant avant la hausse.',
+            'down' => '📉 Les prix sont en baisse. Attendez encore quelques semaines pour profiter du meilleur prix.',
             'stable' => "➡️ Les prix sont stables. Bon moment pour acheter. Le meilleur mois est généralement {$bestMonth}.",
-            default => "Achetez maintenant — prix compétitif.",
+            default => 'Achetez maintenant — prix compétitif.',
         };
     }
 }

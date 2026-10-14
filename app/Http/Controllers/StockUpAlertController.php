@@ -12,6 +12,7 @@ class StockUpAlertController extends Controller
     public function index()
     {
         $alerts = $this->alertService->getRecentAlerts(50);
+
         return view('grocery.stock-up', compact('alerts'));
     }
 

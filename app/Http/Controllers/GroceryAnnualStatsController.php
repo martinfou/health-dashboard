@@ -4,7 +4,6 @@ namespace App\Http\Controllers;
 
 use App\Models\GroceryStore;
 use App\Services\GroceryAnnualStatsService;
-use Illuminate\Http\Request;
 
 class GroceryAnnualStatsController extends Controller
 {

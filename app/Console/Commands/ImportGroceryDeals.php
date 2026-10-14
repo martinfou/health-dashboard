@@ -5,11 +5,11 @@ namespace App\Console\Commands;
 use App\Models\GroceryDeal;
 use App\Models\GroceryStore;
 use Illuminate\Console\Command;
-use Illuminate\Support\Facades\Http;
 
 class ImportGroceryDeals extends Command
 {
     protected $signature = 'grocery:import {store?} {--from=} {--to=}';
+
     protected $description = 'Import weekly grocery deals from JSON';
 
     public function handle()
@@ -31,6 +31,7 @@ class ImportGroceryDeals extends Command
             ['Store', 'Deals', 'From', 'To'],
             GroceryDeal::current()->get()->groupBy('grocery_store_id')->map(function ($deals) {
                 $first = $deals->first();
+
                 return [
                     $first->store->name,
                     $deals->count(),
@@ -50,15 +51,17 @@ class ImportGroceryDeals extends Command
 
         // Try to fetch from local scraper JSON
         $jsonPath = storage_path("app/grocery/{$slug}-{$from}-{$to}.json");
-        if (!file_exists($jsonPath)) {
+        if (! file_exists($jsonPath)) {
             $this->warn("  ⚠️  $slug: fichier JSON non trouvé à $jsonPath");
             $this->line("     Lancer d'abord: python3 scripts/scrape-circulaire.py --store $slug");
+
             return;
         }
 
         $deals = json_decode(file_get_contents($jsonPath), true);
         if (empty($deals)) {
             $this->warn("  ⚠️  $slug: aucun deal trouvé dans le JSON");
+
             return;
         }
 
@@ -83,6 +86,6 @@ class ImportGroceryDeals extends Command
             ]);
         }
 
-        $this->info("  ✅ $slug: " . count($deals) . " deals importés");
+        $this->info("  ✅ $slug: ".count($deals).' deals importés');
     }
 }

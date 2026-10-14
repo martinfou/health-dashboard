@@ -1,12 +1,11 @@
 <?php
+
 namespace App\Http\Controllers;
 
+use App\Models\ActivityLog;
+use App\Models\NutritionLog;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
-use App\Models\WeightReading;
-use App\Models\BodyMeasurement;
-use App\Models\NutritionLog;
-use App\Models\ActivityLog;
 
 class ImportController extends Controller
 {
@@ -26,15 +25,23 @@ class ImportController extends Controller
         $path = $file->getRealPath();
         $content = file_get_contents($path);
         $lines = explode("\n", $content);
-        
+
         // Remove BOM and header lines (FatSecret headers start with #)
         $dataLines = [];
         foreach ($lines as $line) {
             $line = trim($line);
-            if (empty($line) || str_starts_with($line, '#')) continue;
-            if (str_starts_with($line, 'Date') || str_starts_with($line, '"Date')) continue;
-            if (str_starts_with($line, 'Daily Average') || str_starts_with($line, 'Total')) continue;
-            if (str_starts_with($line, 'Period Summary') || str_starts_with($line, 'Report Details')) continue;
+            if (empty($line) || str_starts_with($line, '#')) {
+                continue;
+            }
+            if (str_starts_with($line, 'Date') || str_starts_with($line, '"Date')) {
+                continue;
+            }
+            if (str_starts_with($line, 'Daily Average') || str_starts_with($line, 'Total')) {
+                continue;
+            }
+            if (str_starts_with($line, 'Period Summary') || str_starts_with($line, 'Report Details')) {
+                continue;
+            }
             $dataLines[] = $line;
         }
 
@@ -59,11 +66,15 @@ class ImportController extends Controller
         foreach ($lines as $line) {
             // FatSecret CSV: "Friday, February 20, 2026",1744,62.7,12.519,210.26,25.4,76.23,87.78,2794.96,528.96,1406.9
             $parts = str_getcsv($line);
-            if (count($parts) < 7) continue;
+            if (count($parts) < 7) {
+                continue;
+            }
 
             $dateStr = trim($parts[0], '"');
             $date = date('Y-m-d', strtotime($dateStr));
-            if (!$date || $date < '2020-01-01') continue;
+            if (! $date || $date < '2020-01-01') {
+                continue;
+            }
 
             NutritionLog::updateOrCreate(
                 ['user_id' => $user->id, 'logged_at' => $date],
@@ -79,6 +90,7 @@ class ImportController extends Controller
             );
             $count++;
         }
+
         return $count;
     }
 
@@ -86,22 +98,26 @@ class ImportController extends Controller
     {
         $count = 0;
         $lines = explode("\n", $content);
-        
+
         foreach ($lines as $line) {
             $line = trim($line);
-            if (empty($line) || str_starts_with($line, ',')) continue;
-            
+            if (empty($line) || str_starts_with($line, ',')) {
+                continue;
+            }
+
             $parts = str_getcsv($line);
-            if (count($parts) < 2) continue;
+            if (count($parts) < 2) {
+                continue;
+            }
 
             // Detect Garmin data type from content
             $first = strtolower($parts[0] ?? '');
 
             if (str_contains($content, 'Activity Type') && count($parts) >= 3) {
                 // Monthly activity summary: "Jan 2026,Gym & Fitness Equipment,6"
-                $month = date('Y-m-d', strtotime('first day of ' . $parts[0]));
+                $month = date('Y-m-d', strtotime('first day of '.$parts[0]));
                 $sessions = (int) ($parts[2] ?? 0);
-                
+
                 $activity = ActivityLog::firstOrNew(['user_id' => $user->id, 'activity_date' => $month]);
                 $activity->gym_sessions = ($activity->gym_sessions ?? 0) + $sessions;
                 $activity->source = 'Garmin Connect';
@@ -109,6 +125,7 @@ class ImportController extends Controller
                 $count++;
             }
         }
+
         return $count;
     }
 }

@@ -1,15 +1,16 @@
 <?php
+
 namespace App\Http\Controllers;
 
+use App\Models\ActivityLog;
 use App\Models\BodyMeasurement;
+use App\Models\HealthReport;
 use App\Models\NutritionLog;
 use App\Models\WeightReading;
-use App\Models\ActivityLog;
-use App\Models\HealthReport;
-use Illuminate\Http\Request;
-use Inertia\Inertia;
 use Barryvdh\DomPDF\Facade\Pdf;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Inertia\Inertia;
 
 class ReportController extends Controller
 {
@@ -64,13 +65,13 @@ class ReportController extends Controller
                 'hr' => $row->hr,
             ])->values()->all(),
             'generated_at' => now()->format('Y-m-d H:i'),
-            'period' => ($firstW?->recorded_at ?? 'N/A') . ' → ' . ($lastW?->recorded_at ?? 'N/A'),
+            'period' => ($firstW?->recorded_at ?? 'N/A').' → '.($lastW?->recorded_at ?? 'N/A'),
         ];
 
         // Save report
         $report = HealthReport::create([
             'user_id' => $user->id,
-            'title' => 'Rapport Santé - ' . now()->format('d/m/Y'),
+            'title' => 'Rapport Santé - '.now()->format('d/m/Y'),
             'period_start' => $firstW?->recorded_at ?? now(),
             'period_end' => $lastW?->recorded_at ?? now(),
             'summary_data' => $summary,

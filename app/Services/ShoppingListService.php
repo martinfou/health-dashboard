@@ -24,8 +24,7 @@ class ShoppingListService
      * Generate a categorized shopping list from meal plan items,
      * cross-referenced with current deals.
      *
-     * @param Collection $mealPlanItems Collection of GroceryDeal objects from the meal plan
-     * @return array
+     * @param  Collection  $mealPlanItems  Collection of GroceryDeal objects from the meal plan
      */
     public function generateFromMealPlan(Collection $mealPlanItems): array
     {
@@ -41,7 +40,9 @@ class ShoppingListService
 
         foreach ($this->categoryMap as $catKey => $catLabel) {
             $items = $byCategory->get($catKey, collect([]));
-            if ($items->isEmpty()) continue;
+            if ($items->isEmpty()) {
+                continue;
+            }
 
             $categoryItems = [];
             $catTotal = 0;

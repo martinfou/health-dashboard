@@ -4,10 +4,9 @@ namespace App\Http\Controllers;
 
 use App\Models\GroceryDeal;
 use App\Models\GroceryStore;
-use App\Models\PriceStat;
 use App\Models\PriceHistory;
+use App\Models\PriceStat;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\DB;
 
 class PriceIntelController extends Controller
 {
@@ -37,8 +36,8 @@ class PriceIntelController extends Controller
                         $savingsPct >= 40 => ['rating' => 'excellent', 'label' => '🔥 EXCELLENT', 'score' => 5],
                         $savingsPct >= 25 => ['rating' => 'good', 'label' => '👍 Bon deal', 'score' => 4],
                         $savingsPct >= 15 => ['rating' => 'average', 'label' => '✅ Correct', 'score' => 3],
-                        $savingsPct >= 5  => ['rating' => 'weak', 'label' => '😐 Moyen', 'score' => 2],
-                        default           => ['rating' => 'bad', 'label' => '❌ Pas un deal', 'score' => 1],
+                        $savingsPct >= 5 => ['rating' => 'weak', 'label' => '😐 Moyen', 'score' => 2],
+                        default => ['rating' => 'bad', 'label' => '❌ Pas un deal', 'score' => 1],
                     };
                 } else {
                     $deal->rating = ['rating' => 'no_data', 'label' => '📝 Aucune data', 'score' => 0];
@@ -63,9 +62,9 @@ class PriceIntelController extends Controller
                 'count' => $deals->count(),
                 'avg_score' => $withRating->avg(fn ($d) => $d->rating['score']),
                 'top_score' => $withRating->max(fn ($d) => $d->rating['score']),
-                'icons' => ['fruits'=>'🍎','legumes'=>'🥦','viande'=>'🥩','poisson'=>'🐟',
-                            'laitier'=>'🧀','surgeles'=>'🧊','epicerie'=>'🥫',
-                            'snacks'=>'🍪','boissons'=>'🥤','entretien'=>'🧹'],
+                'icons' => ['fruits' => '🍎', 'legumes' => '🥦', 'viande' => '🥩', 'poisson' => '🐟',
+                    'laitier' => '🧀', 'surgeles' => '🧊', 'epicerie' => '🥫',
+                    'snacks' => '🍪', 'boissons' => '🥤', 'entretien' => '🧹'],
             ];
         }
         arsort($categorySavings);
@@ -239,7 +238,7 @@ class PriceIntelController extends Controller
                             break;
                         }
                     }
-                    if (!$found) {
+                    if (! $found) {
                         $feasible = false;
                         break;
                     }

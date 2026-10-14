@@ -1,4 +1,5 @@
 <?php
+
 namespace App\Http\Controllers;
 
 use App\Models\DailyJournal;
@@ -49,6 +50,7 @@ class JournalController extends Controller
     {
         $entry = DailyJournal::findOrFail($id);
         $entry->delete();
+
         return back()->with('success', 'Entrée supprimée.');
     }
 }

@@ -2,12 +2,10 @@
 
 namespace App\Services;
 
-use App\Models\GroceryDeal;
-use App\Models\MealPlanUsage;
 use App\Models\MealPlanTracking;
 use App\Models\NutritionLog;
-use Illuminate\Support\Collection;
 use Illuminate\Support\Carbon;
+use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\DB;
 
 class RecipeMatcherService
@@ -135,6 +133,7 @@ class RecipeMatcherService
                 $deal = $deals->first(function ($d) use ($ingredient) {
                     $product = mb_strtolower($d->product);
                     $ing = mb_strtolower($ingredient);
+
                     return str_contains($product, $ing) || str_contains($ing, $product);
                 });
 
@@ -182,9 +181,9 @@ class RecipeMatcherService
     /**
      * Generate a meal plan for N days with meal slot assignments.
      *
-     * @param Collection $deals Current grocery deals
-     * @param int $days Number of days to plan (default 7)
-     * @param array $excludeRecipes Recipe names to exclude
+     * @param  Collection  $deals  Current grocery deals
+     * @param  int  $days  Number of days to plan (default 7)
+     * @param  array  $excludeRecipes  Recipe names to exclude
      * @return array ['schedule' => [...], 'daily_totals' => [...]]
      */
     public function generateMealPlan(Collection $deals, int $days = 7, array $excludeRecipes = []): array
@@ -192,7 +191,7 @@ class RecipeMatcherService
         $matched = $this->matchRecipes($deals);
 
         $excludeLower = array_map('mb_strtolower', $excludeRecipes);
-        $available = $matched->reject(fn($r) => in_array(mb_strtolower($r['name']), $excludeLower));
+        $available = $matched->reject(fn ($r) => in_array(mb_strtolower($r['name']), $excludeLower));
 
         $weekDays = ['Lundi', 'Mardi', 'Mercredi', 'Jeudi', 'Vendredi', 'Samedi', 'Dimanche'];
         $schedule = [];
@@ -203,41 +202,43 @@ class RecipeMatcherService
         $slotCalorieTargets = ['breakfast' => 400, 'lunch' => 550, 'dinner' => 600, 'snack' => 350];
 
         for ($i = 0; $i < min($days, 7); $i++) {
-            $day = $weekDays[$i] ?? "Jour " . ($i + 1);
+            $day = $weekDays[$i] ?? 'Jour '.($i + 1);
             $schedule[$day] = [];
             $dayCalories = 0;
 
             foreach ($slotCalorieTargets as $slot => $target) {
                 // Find best recipe for this slot that hasn't been used
                 $best = $available->first(function ($r) use ($usedRecipeNames, $slot) {
-                    return !in_array($r['name'], $usedRecipeNames)
+                    return ! in_array($r['name'], $usedRecipeNames)
                         && $r['suggested_slot'] === $slot
                         && $r['match_ratio'] > 0;
                 });
 
-                if (!$best) {
+                if (! $best) {
                     // Fallback: any recipe that fits the calorie budget for this slot
                     $budget = $target * 1.3; // allow 30% over
                     $best = $available->first(function ($r) use ($usedRecipeNames, $budget) {
-                        return !in_array($r['name'], $usedRecipeNames) && $r['kcal'] <= $budget;
+                        return ! in_array($r['name'], $usedRecipeNames) && $r['kcal'] <= $budget;
                     });
                 }
 
-                if (!$best) {
+                if (! $best) {
                     // Last resort: any unused recipe
                     $best = $available->first(function ($r) use ($usedRecipeNames) {
-                        return !in_array($r['name'], $usedRecipeNames);
+                        return ! in_array($r['name'], $usedRecipeNames);
                     });
                 }
 
-                if (!$best) {
+                if (! $best) {
                     // Recycle from full pool
                     $best = $matched->first(function ($r) use ($usedRecipeNames) {
-                        return !in_array($r['name'], $usedRecipeNames);
+                        return ! in_array($r['name'], $usedRecipeNames);
                     });
                 }
 
-                if (!$best) break;
+                if (! $best) {
+                    break;
+                }
 
                 $usedRecipeNames[] = $best['name'];
                 $best['assigned_slot'] = $slot;
@@ -273,7 +274,9 @@ class RecipeMatcherService
 
         foreach ($schedule as $dayName => $meals) {
             $dayIndex = array_search($dayName, ['Lundi', 'Mardi', 'Mercredi', 'Jeudi', 'Vendredi', 'Samedi', 'Dimanche']);
-            if ($dayIndex === false) continue;
+            if ($dayIndex === false) {
+                continue;
+            }
 
             $plannedDate = $weekStart->copy()->addDays($dayIndex);
 
@@ -286,7 +289,7 @@ class RecipeMatcherService
                     ->where('meal_slot', $meal['assigned_slot'])
                     ->first();
 
-                if (!$existing) {
+                if (! $existing) {
                     MealPlanTracking::create([
                         'user_id' => $userId,
                         'recipe_name' => $meal['name'],
@@ -314,7 +317,7 @@ class RecipeMatcherService
     /**
      * Get recipes that fit within a remaining calorie budget.
      */
-    public function suggestByCalorieBudget(int $remainingCalories, string $preferredSlot = null): array
+    public function suggestByCalorieBudget(int $remainingCalories, ?string $preferredSlot = null): array
     {
         $suggestions = [];
 
@@ -349,7 +352,9 @@ class RecipeMatcherService
     public function markMealEaten(int $trackingId): ?MealPlanTracking
     {
         $tracking = MealPlanTracking::find($trackingId);
-        if (!$tracking || $tracking->eaten) return $tracking;
+        if (! $tracking || $tracking->eaten) {
+            return $tracking;
+        }
 
         DB::transaction(function () use ($tracking) {
             // Create nutrition log entry
@@ -362,7 +367,7 @@ class RecipeMatcherService
                 'fat_g' => $tracking->fat_g,
                 'fiber_g' => $tracking->fiber_g,
                 'sugar_g' => $tracking->sugar_g,
-                'source' => 'meal_plan_' . $tracking->meal_slot,
+                'source' => 'meal_plan_'.$tracking->meal_slot,
                 'raw_data' => [
                     'recipe' => $tracking->recipe_name,
                     'icon' => $tracking->icon,
